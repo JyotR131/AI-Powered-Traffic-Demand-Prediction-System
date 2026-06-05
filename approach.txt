@@ -1,0 +1,41 @@
+# Traffic Congestion Demand Prediction - Approach Document
+
+## Objective
+The goal of this task was to design a system that predicts traffic demand in urban areas based on geographic, temporal, and environmental data. The performance metric is $100 \times R^2$ score.
+
+## Data Analysis
+- **Training Data**: 77,299 records spanning Day 48 and early parts of Day 49.
+- **Test Data**: 41,778 records for Day 49 (different timestamps from the training data).
+- **Missing Values**: Present in `RoadType`, `Temperature`, and `Weather`.
+- **Temporal Patterns**: Demand shows strong correlation with `geohash` and `timestamp`. Comparing Day 48 and Day 49 (where both were available) showed a high correlation (~0.79), indicating strong daily patterns.
+
+## Feature Engineering
+1. **Time Features**: Converted the `timestamp` (H:M) into `hour`, `minute`, and `total_minutes`.
+2. **Spatial Features**: Extracted geohash prefixes (lengths 3, 4, 5) to capture hierarchical spatial relationships.
+3. **Target Encoding**:
+   - Mean demand per `geohash`.
+   - Mean demand per `hour`.
+   - Mean demand per (`geohash`, `hour`) pair.
+   These features were calculated using all available training data to capture the baseline demand for specific locations at specific times.
+
+## Modeling
+- **Algorithm**: LightGBM Regressor.
+- **Validation Strategy**: Trained on Day 48 and validated on the Day 49 records available in the training set.
+- **Hyperparameters**:
+  - `learning_rate`: 0.01
+  - `num_leaves`: 255
+  - `feature_fraction`: 0.8
+  - `bagging_fraction`: 0.8
+- **Results**: Achieved an $R^2$ score of ~0.778 on the validation set.
+
+## Submission Guidelines Check
+- **Format**: CSV file.
+- **Rows**: 41,778 (excluding header).
+- **Columns**: `Index` and `demand`.
+- **Index**: Matches `test.csv`.
+
+## Tools Used
+- Python
+- Pandas & NumPy (Data manipulation)
+- Scikit-learn (Preprocessing & Metrics)
+- LightGBM (Gradient Boosting Model)
